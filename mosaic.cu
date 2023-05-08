@@ -31,6 +31,8 @@ int isValidFilename(const char* filename){
 }
 
 int main(int argc, char* argv[]){
+	fprintf(stderr, "The kernel code has not been written!\n");
+	exit(0);
 
 	if(argc < 2 || argc > 3){
 		fprintf(stderr, "Usage: ./merge inputFile.png [outputFile]");

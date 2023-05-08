@@ -14,20 +14,18 @@
 
 typedef unsigned char uchar;
 
-__global__ void merge_images(uchar* dest, uchar* src1, int width1, 
+__global__ void mergeImages(uchar* dest, uchar* src1, int width1, 
 	int height1, uchar* src2, int width2, int height2){
 
-	int x = blockIdx.x * blockDim.x + threadIdx.x;
-	int y = blockIdx.y * blockDim.y + threadIdx.y;
+		int x1 = blockIdx.x;
+		int y1 = blockIdx.y;
+		int x2 = x1*width2/width1;
+		int y2 = y1*height2/height1;
 
-	if (x < width1 && y < height1) {
-		int index1 = (y * width1 + x)*CHANNELS;
-		int index2 = ((y * height2 / height1) * width2 + (x * width2 / width1))*CHANNELS;
-
-		for(int j=0; j<CHANNELS; ++j){
-			dest[index1 + j] = (src1[index1 + j] + src2[index2 + j]) / 2;
-		}
-	}
+		int index1 = (y1*width1 + x1)*blockDim.x + threadIdx.x;
+		int index2 = (y2*width2 + x2)*blockDim.x + threadIdx.x;
+		
+		dest[index1] = (src1[index1] + src2[index2]) / 2;
 }
 
 // Returns length if valid or 0 if invalid
@@ -96,11 +94,11 @@ int main(int argc, char* argv[]){
 	cudaMemcpy(dev_src2, image2, width2 * height2 * CHANNELS, cudaMemcpyHostToDevice);
 
 	// Define block and grid sizes
-	dim3 blockSize(16, 16);
-	dim3 gridSize((width1 + blockSize.x - 1) / blockSize.x, (height1 + blockSize.y - 1) / blockSize.y);
+	dim3 blockSize(CHANNELS);
+	dim3 gridSize(width1, height1);
 
 	// Call the kernel to merge the images
-	merge_images<<<gridSize, blockSize>>>(dev_dest, dev_src1, width1, height1, dev_src2, width2, height2);
+	mergeImages<<<gridSize, blockSize>>>(dev_dest, dev_src1, width1, height1, dev_src2, width2, height2);
 
 	// Copy the result back to the host
 	uchar *result = (uchar*)malloc(width1 * height1 * CHANNELS);
