@@ -82,32 +82,25 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
-	// Allocate memory on the device
 	uchar *dev_dest, *dev_src1, *dev_src2;
 
 	cudaMalloc((void**)&dev_dest, width1 * height1 * CHANNELS);
 	cudaMalloc((void**)&dev_src1, width1 * height1 * CHANNELS);
 	cudaMalloc((void**)&dev_src2, width2 * height2 * CHANNELS);
 
-	// Copy the input images to the device
 	cudaMemcpy(dev_src1, image1, width1 * height1 * CHANNELS, cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_src2, image2, width2 * height2 * CHANNELS, cudaMemcpyHostToDevice);
 
-	// Define block and grid sizes
 	dim3 blockSize(CHANNELS);
 	dim3 gridSize(width1, height1);
 
-	// Call the kernel to merge the images
 	mergeImages<<<gridSize, blockSize>>>(dev_dest, dev_src1, width1, height1, dev_src2, width2, height2);
 
-	// Copy the result back to the host
 	uchar *result = (uchar*)malloc(width1 * height1 * CHANNELS);
 	cudaMemcpy(result, dev_dest, width1 * height1 * CHANNELS, cudaMemcpyDeviceToHost);
 
-	// Save the result to disk
 	stbi_write_png(outputFileName, width1, height1, CHANNELS, result, width1 * CHANNELS);
 
-	// Free memory on the host and device
 	free(result);
 	free(image1);
 	free(image2);
