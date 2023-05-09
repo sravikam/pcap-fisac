@@ -14,7 +14,6 @@
 
 typedef unsigned char uchar;
 
-// Define the kernel that will calculate the average of each tile
 __global__ void mosaicImage(uchar* outputImage, uchar* inputImage, int width, int height, int tileSize) {
 	int row = blockIdx.y;
 	int col = blockIdx.x;
