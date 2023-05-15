@@ -6,7 +6,8 @@ files to read an image and write an image.
 
 *merge*: Merges two images. The output image is of same size as first image.
 
-*mosaic*: Merges pixels of the same image to form a 32x32 tiled image.
+*mosaic*: Merges pixels of the same image to form a tiled image with 32 tiles 
+in the smaller dimension.
 
 ## How To Use
 
